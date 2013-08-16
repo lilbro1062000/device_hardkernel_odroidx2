@@ -1,0 +1,155 @@
+import init.odroidx2.usb.rc
+on init
+    mkdir /storage 0775 system system
+    mkdir /storage/sdcard 0775 system system
+    mkdir /storage/sdcard1 0775 system system
+    mkdir /storage/usbdisk 0775 system system
+    symlink /storage/sdcard /sdcard
+    symlink /storage/sdcard /mnt/sdcard
+    symlink /storage/sdcard1 /extSdCard
+    symlink /storage/sdcard1 /mnt/extSdCard
+    symlink /storage/usbdisk /ext_usb
+    symlink /storage/usbdisk /mnt/ext_usb
+
+    export EXTERNAL_STORAGE /storage/sdcard
+    export SECONDARY_STORAGE /storage/sdcard1
+
+# setup the global environment
+    export PATH /sbin:/vendor/bin:/system/sbin:/system/bin:/system/xbin:/system/busybox/bin:/system/busybox/sbin:/system/busybox/usr/bin:/system/busybox/usr/sbin
+ 
+
+on post-fs-data
+    mkdir /data/media 0770 media_rw media_rw
+    setprop vold.post_fs_data_done 1
+
+on boot
+    setprop ro.build.product odroidx2
+    setprop ro.product.device odroidx2
+    setprop ro.radio.noril yes
+    setprop ro.kernel.android.ril 0
+    setprop ril.work 0
+
+on fs
+    mount_all /fstab.odroidx2
+    mount usbfs none /proc/bus/usb -o devmode=0666
+# jmq.disable
+
+	#===================================================================
+	#
+	# permissions for bluetooth Mac address
+	#
+	#===================================================================
+	chown bluetooth bluetooth /system/etc/bluetooth
+	chmod 755 /system/etc/bluetooth
+
+# Permissions for backlight
+    chmod 0665 /sys/class/backlight/pwm-backlight.0/brightness
+    chown system system /sys/class/backlight/pwm-backlight.0/brightness
+# Permissions for btpower
+#    chown system system /sys/devices/platform/bt-sysfs/bt_power
+
+
+on post-fs-data
+	#===================================================================
+	#
+	# wi-fi post data
+	#
+	#===================================================================
+	mkdir /data/misc/wifi 0770 wifi wifi
+	mkdir /data/misc/wifi/sockets 0770 wifi wifi
+	mkdir /data/misc/dhcp 0770 dhcp dhcp
+	chown dhcp dhcp /data/misc/dhcp
+
+	setprop wifi.interface "wlan0"
+	setprop wlan.interface "wlan0"
+	setprop wlan.driver.status "ok"
+#    setprop ro.crypto.fuse_sdcard true
+
+    stop ril-daemon
+
+service net_usb_module /system/bin/insmod /system/lib/modules/smsc95xx.ko    
+    class core
+    user root
+    group root
+    oneshot
+
+# create filesystem if necessary
+#service setup_fs /system/bin/setup_fs \
+#            /dev/block/mmcblk0p3 \
+#            /dev/block/mmcblk0p4
+#    class core
+#    user root
+#    group root
+#    oneshot
+
+# create virtual SD card at /mnt/sdcard, based on the /data/media directory
+# daemon will drop to user/group system/media_rw after initializing
+# underlying files in /data/media will be created with user and group media_rw (1023)
+# jmq.disable
+# virtual sdcard daemon running as media_rw (1023)
+service sdcard /system/bin/sdcard /data/media /mnt/shell/emulated 1023 1023
+    class late_start
+
+# Permissions for GPS
+#    chmod 0777 /dev/ttySAC3
+#    chmod 0777 /dev/AGPS
+#    chown root root /data
+#    chmod 0771 /data
+#UVC
+service uvc_usb_module /system/bin/insmod /system/lib/modules/uvcvideo.ko    
+    class core
+    user root
+    group root
+    oneshot
+
+
+#===================================================================
+#
+# WIFI wpa suppplicant service
+#
+#===================================================================
+service wpa_supplicant /system/bin/wpa_supplicant -Dwext -iwlan0 -c /data/misc/wifi/wpa_supplicant.conf
+	class main
+    socket wpa_wlan0 dgram 0660 wifi wifi
+	disabled
+	oneshot
+
+service dhcpcd_wlan0 /system/bin/dhcpcd -ABKL
+	class main
+	disabled
+	oneshot
+
+service dhcpcd_eth0 /system/bin/dhcpcd -ABKL
+	class main
+	disabled
+	oneshot
+
+service dhcpcd_bnep0 /system/bin/dhcpcd -ABKL
+	class main
+	disabled
+	oneshot
+
+service iprenew_wlan0 /system/bin/dhcpcd -n
+	class main
+	disabled
+	oneshot
+
+service iprenew_bnep0 /system/bin/dhcpcd -n
+	class main
+	disabled
+	oneshot
+
+
+# IP Renew
+# eth0 
+service iprenew_eth0 /system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
+    
+service prep-recovery /system/bin/pseudorec-to-sd
+    class main
+    disabled
+    user root
+    oneshot
+

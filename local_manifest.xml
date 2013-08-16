@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <project name="razorbladex401/device_hardkernel_odroidx2" path="device/hardkernel/odroidx2" remote="github" revision="cm10.1" />
+  <project name="razorbladex401/vendor_hardkernel_odroidx2" path="vendor/hardkernel/odroidx2" remote="github" revision="cm10.1" />
+  <project name="razorbladex401/device_samsung" path="device/samsung" remote="github" revision="cm10.1" />
+  <project name="razorbladex401/hardkernel-kernel-4412" path="kernel/hardkernel/4412-common" remote="github" revision="cm-10.1" />
+  <project name="CyanogenMod/android_hardware_realtek" path="hardware/realtek" remote="github" revision="cm-10.1" />
+</manifest>
+

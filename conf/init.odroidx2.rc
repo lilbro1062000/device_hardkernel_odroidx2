@@ -1,0 +1,145 @@
+import init.odroidx2.usb.rc
+on early-init
+    export EXTERNAL_STORAGE /storage/sdcard
+    export SECONDARY_STORAGE /storage/sdcard1
+    mkdir /storage/sdcard 0000 system system
+    symlink /storage/sdcard /sdcard
+    symlink /storage/sdcard /mnt/sdcard
+    mkdir /storage/sdcard1 0000 system system  
+    mkdir /storage/usb 0000 system system  	
+
+# jmq.disable
+#on post-fs-data
+    # we will remap this as /mnt/sdcard with the sdcard fuse tool
+#    mkdir /data/media 0775 media_rw media_rw
+#    chown media_rw media_rw /data/media
+#service console /system/bin/sh
+#    class core
+#    console
+#    group log
+
+on boot
+    setprop ro.build.product odroidx2
+    setprop ro.product.device odroidx2
+    setprop ro.radio.noril yes
+    setprop ro.kernel.android.ril 0
+    setprop ril.work 0
+
+on fs
+    mount ext4 /dev/block/mmcblk0p2 /system ro wait
+#   mount ext4 /dev/block/mmcblk0p3 /data wait nosuid nodev noatime nomblk_io_submit
+    mount ext4 /dev/block/mmcblk0p3 /data nosuid nodev noatime wait usedm discard,noauto_da_alloc,nodelalloc
+    mount ext4 /dev/block/mmcblk0p4 /cache wait nosuid nodev noatime nomblk_io_submit
+    mount usbfs none /proc/bus/usb -o devmode=0666
+# jmq.disable
+
+	#===================================================================
+	#
+	# permissions for bluetooth Mac address
+	#
+	#===================================================================
+	chown bluetooth bluetooth /system/etc/bluetooth
+	chmod 755 /system/etc/bluetooth
+
+# Permissions for backlight
+    chmod 0665 /sys/class/backlight/pwm-backlight.0/brightness
+    chown system system /sys/class/backlight/pwm-backlight.0/brightness
+# Permissions for btpower
+#    chown system system /sys/devices/platform/bt-sysfs/bt_power
+
+
+on post-fs-data
+	#===================================================================
+	#
+	# wi-fi post data
+	#
+	#===================================================================
+	mkdir /data/misc/wifi 0770 wifi wifi
+	mkdir /data/misc/wifi/sockets 0770 wifi wifi
+	mkdir /data/misc/dhcp 0770 dhcp dhcp
+	chown dhcp dhcp /data/misc/dhcp
+
+	setprop wifi.interface "ra0"
+	setprop wlan.interface "ra0"
+	setprop wlan.driver.status "ok"
+#    setprop ro.crypto.fuse_sdcard true
+
+    stop ril-daemon
+
+service net_usb_module /system/bin/insmod /system/lib/modules/smsc95xx.ko    
+    class core
+    user root
+    group root
+    oneshot
+
+# create filesystem if necessary
+#service setup_fs /system/bin/setup_fs \
+#            /dev/block/mmcblk0p3 \
+#            /dev/block/mmcblk0p4
+#    class core
+#    user root
+#    group root
+#    oneshot
+
+# create virtual SD card at /mnt/sdcard, based on the /data/media directory
+# daemon will drop to user/group system/media_rw after initializing
+# underlying files in /data/media will be created with user and group media_rw (1023)
+# jmq.disable
+#service sdcard /system/bin/sdcard /data/media 1023 1023
+#    class late_start
+
+# Permissions for GPS
+#    chmod 0777 /dev/ttySAC3
+#    chmod 0777 /dev/AGPS
+#    chown root root /data
+#    chmod 0771 /data
+
+#===================================================================
+#
+# WIFI wpa suppplicant service
+#
+#===================================================================
+service wpa_supplicant /system/bin/wpa_supplicant -Dwext -ira0 -c /data/misc/wifi/wpa_supplicant.conf
+	class main
+    socket wpa_ra0 dgram 0660 wifi wifi
+	disabled
+	oneshot
+
+service dhcpcd_ra0 /system/bin/dhcpcd -ABKL
+	class main
+	disabled
+	oneshot
+
+service dhcpcd_eth0 /system/bin/dhcpcd -ABKL
+	class main
+	disabled
+	oneshot
+
+service dhcpcd_bnep0 /system/bin/dhcpcd -ABKL
+	class main
+	disabled
+	oneshot
+
+service iprenew_ra0 /system/bin/dhcpcd -n
+	class main
+	disabled
+	oneshot
+
+service iprenew_bnep0 /system/bin/dhcpcd -n
+	class main
+	disabled
+	oneshot
+
+# IP Renew
+# eth0 
+service iprenew_eth0 /system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
+    
+service prep-recovery /system/bin/pseudorec-to-sd
+    class main
+    disabled
+    user root
+    oneshot
+
