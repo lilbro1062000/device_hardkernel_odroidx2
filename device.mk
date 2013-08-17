@@ -95,24 +95,19 @@ PRODUCT_COPY_FILES += \
 
 #Prebuilt modules
 PRODUCT_COPY_FILES += \
+    device/hardkernel/odroidx2/modules/ansi_cprng.ko:system/lib/modules/ansi_cprng.ko \
     device/hardkernel/odroidx2/modules/gator.ko:system/lib/modules/gator.ko \
+    device/hardkernel/odroidx2/modules/gpio_keys_polled.ko:system/lib/modules/gpio_keys_polled.ko \
+    device/hardkernel/odroidx2/modules/gspca_main.ko:system/lib/modules/gspca_main.ko \
+    device/hardkernel/odroidx2/modules/input-polldev.ko:system/lib/modules/input-polldev.ko \
+    device/hardkernel/odroidx2/modules/ramoops.ko:system/lib/modules/ramoops.ko \
     device/hardkernel/odroidx2/modules/rtl8191su.ko:system/lib/modules/rtl8191su.ko \
+    device/hardkernel/odroidx2/modules/scsi_wait_scan.ko:system/lib/modules/scsi_wait_scan.ko \
     device/hardkernel/odroidx2/modules/smsc95xx.ko:system/lib/modules/smsc95xx.ko \
+    device/hardkernel/odroidx2/modules/tcp_bic.ko:system/lib/modules/tcp_bic.ko \
+    device/hardkernel/odroidx2/modules/tcp_htcp.ko:system/lib/modules/tcp_htcp.ko \
+    device/hardkernel/odroidx2/modules/tcp_westwood.ko:system/lib/modules/tcp_westwood.ko \
     device/hardkernel/odroidx2/modules/uvcvideo.ko:system/lib/modules/uvcvideo.ko
-
-#PRODUCT_COPY_FILES += \
-#    device/hardkernel/odroidx2/modules/ansi_cprng.ko:system/lib/modules/ansi_cprng.ko \
-#    device/hardkernel/odroidx2/modules/gator.ko:system/lib/modules/gator.ko \
-#    device/hardkernel/odroidx2/modules/gpio_keys_polled.ko:system/lib/modules/gpio_keys_polled.ko \
-#    device/hardkernel/odroidx2/modules/gspca_main.ko:system/lib/modules/gspca_main.ko \
-#    device/hardkernel/odroidx2/modules/input-polldev.ko:system/lib/modules/input-polldev.ko \
-#    device/hardkernel/odroidx2/modules/ramoops.ko:system/lib/modules/ramoops.ko \
-#    device/hardkernel/odroidx2/modules/rtl8191su.ko:system/lib/modules/rtl8191su.ko \
-#    device/hardkernel/odroidx2/modules/scsi_wait_scan.ko:system/lib/modules/scsi_wait_scan.ko \
-#    device/hardkernel/odroidx2/modules/smsc95xx.ko:system/lib/modules/smsc95xx.ko \
-#    device/hardkernel/odroidx2/modules/tcp_bic.ko:system/lib/modules/tcp_bic.ko \
-#    device/hardkernel/odroidx2/modules/tcp_htcp.ko:system/lib/modules/tcp_htcp.ko \
-#    device/hardkernel/odroidx2/modules/tcp_westwood.ko:system/lib/modules/tcp_westwood.ko
 
 
 #BOARD_SEPOLICY_DIRS += \
