@@ -173,6 +173,7 @@ PRODUCT_PACKAGES += \
 	audio_policy.odroidx2 \
 	audio.primary.odroidx2 \
 	audio.a2dp.default \
+	audio.usb.default \
 	libaudioutils
 
 PRODUCT_COPY_FILES += \
